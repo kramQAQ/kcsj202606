@@ -1,0 +1,20 @@
+path: E:/homework/2026/kcsj/datasets
+train: images/train
+val: images/val
+nc: 15
+names:
+- jiegeng
+- danshen
+- banlangen
+- baixianpi
+- zexie
+- sangzhi
+- niuxi
+- baishao
+- gancaopian
+- mudanpi
+- gaoliangjiang
+- baizhi
+- baihe
+- yuzhu
+- dazao
