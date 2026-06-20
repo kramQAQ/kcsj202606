@@ -1,5 +1,7 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 
+import os
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -155,6 +157,9 @@ class v8DetectionLoss:
 
         m = model.model[-1]  # Detect() module
         self.bce = nn.BCEWithLogitsLoss(reduction="none")
+        self.use_focal_loss = os.getenv("YOLO_USE_FOCAL_LOSS", "0") == "1"
+        if self.use_focal_loss:
+            self.focal_loss = FocalLoss()
         self.hyp = h
         self.stride = m.stride  # model strides
         self.nc = m.nc  # number of classes
@@ -232,7 +237,10 @@ class v8DetectionLoss:
 
         # Cls loss
         # loss[1] = self.varifocal_loss(pred_scores, target_scores, target_labels) / target_scores_sum  # VFL way
-        loss[1] = self.bce(pred_scores, target_scores.to(dtype)).sum() / target_scores_sum  # BCE
+        if self.use_focal_loss:
+            loss[1] = self.focal_loss(pred_scores, target_scores.to(dtype)) / target_scores_sum  # Focal Loss
+        else:
+            loss[1] = self.bce(pred_scores, target_scores.to(dtype)).sum() / target_scores_sum  # BCE
 
         # Bbox loss
         if fg_mask.sum():

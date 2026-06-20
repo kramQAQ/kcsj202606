@@ -1,0 +1,1 @@
+source_run: E:\homework\2026\kcsj\runs\detect\exp2_bifpn_gpu_20260620_041111

@@ -1,0 +1,1 @@
+source_run: E:\homework\2026\kcsj\runs\detect\exp4_cbam_bifpn_focal_gpu_20260620_043612

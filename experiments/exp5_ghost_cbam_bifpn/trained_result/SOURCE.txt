@@ -1,0 +1,1 @@
+source_run: E:\homework\2026\kcsj\runs\detect\exp5_ghost_cbam_bifpn_gpu_20260620_050235

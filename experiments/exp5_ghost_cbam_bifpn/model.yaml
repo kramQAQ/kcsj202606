@@ -1,0 +1,44 @@
+# Exp5: GhostNet-style YOLOv8n + CBAM + BiFPN.
+
+nc: 15
+scales:
+  n: [0.33, 0.25, 1024]
+
+backbone:
+  - [-1, 1, GhostConv, [64, 3, 2]]
+  - [-1, 1, GhostConv, [128, 3, 2]]
+  - [-1, 3, C2fGhost, [128, True]]
+  - [-1, 1, GhostConv, [256, 3, 2]]
+  - [-1, 6, C2fGhost, [256, True]]
+  - [-1, 1, GhostConv, [512, 3, 2]]
+  - [-1, 6, C2fGhost, [512, True]]
+  - [-1, 1, GhostConv, [1024, 3, 2]]
+  - [-1, 3, C2fGhost, [1024, True]]
+  - [-1, 1, SPPF, [1024, 5]]
+  - [-1, 1, CBAM, [7]]
+
+head:
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
+  - [-1, 1, GhostConv, [512, 1, 1]]
+  - [[-1, 6], 1, BiFPN_Add2, []]
+  - [-1, 3, C2fGhost, [512]]
+  - [-1, 1, CBAM, [7]]
+
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
+  - [-1, 1, GhostConv, [256, 1, 1]]
+  - [[-1, 4], 1, BiFPN_Add2, []]
+  - [-1, 3, C2fGhost, [256]]
+  - [-1, 1, CBAM, [7]]
+
+  - [-1, 1, GhostConv, [512, 3, 2]]
+  - [[-1, 15, 6], 1, BiFPN_Add3, []]
+  - [-1, 3, C2fGhost, [512]]
+  - [-1, 1, CBAM, [7]]
+
+  - [-1, 1, GhostConv, [1024, 3, 2]]
+  - [[-1, 10], 1, BiFPN_Add2, []]
+  - [-1, 3, C2fGhost, [1024]]
+  - [-1, 1, CBAM, [7]]
+
+  - [[20, 24, 28], 1, Detect, [nc]]
+
