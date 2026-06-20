@@ -1,0 +1,1 @@
+source_run: E:\homework\2026\kcsj\runs\detect\exp9_bifpn_backbone_cbam_gpu_20260620_203752

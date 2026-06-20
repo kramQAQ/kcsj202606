@@ -1,5 +1,6 @@
 .venv/
 .idea/
+.ultralytics/
 __pycache__/
 *.py[cod]
 *$py.class

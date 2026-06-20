@@ -1,12 +1,7 @@
 # Python 3.10 is recommended.
 
-# OCR
-paddleocr==2.7.0.3
-paddlepaddle==2.6.2
-
 # Computer vision and numeric processing
 opencv-python==4.6.0.66
-opencv-contrib-python==4.6.0.66
 numpy==1.26.4
 Pillow==12.2.0
 matplotlib==3.10.9
@@ -22,14 +17,14 @@ scikit-learn==1.7.2
 pandas==2.3.3
 scipy==1.15.3
 
-# OCR server
+# Web inference server
 Flask==2.0.3
 Jinja2==3.0.3
 MarkupSafe==2.0.1
 Werkzeug==2.1.2
 requests==2.31.0
 
-# Utilities used by PaddleOCR/Ultralytics
+# Utilities used by Ultralytics
 tqdm==4.68.1
 shapely==2.1.2
 psutil==7.2.2

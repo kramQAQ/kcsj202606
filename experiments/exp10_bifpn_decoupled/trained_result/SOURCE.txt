@@ -1,0 +1,1 @@
+source_run: E:\homework\2026\kcsj\runs\detect\exp10_bifpn_decoupled_gpu_20260620_203856

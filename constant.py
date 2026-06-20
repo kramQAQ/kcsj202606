@@ -2,9 +2,9 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent
-SOURCE_DATASET_DIR = BASE_DIR / "2_1_dataset"
-SOURCE_IMAGE_DIR = SOURCE_DATASET_DIR / "image"
-SOURCE_LABEL_DIR = SOURCE_DATASET_DIR / "label"
+SOURCE_DATASET_DIR = BASE_DIR / "data"
+SOURCE_IMAGE_DIR = SOURCE_DATASET_DIR / "images"
+SOURCE_LABEL_DIR = SOURCE_DATASET_DIR / "labels"
 SOURCE_CLASSES_FILE = SOURCE_LABEL_DIR / "classes.txt"
 DATASETS_DIR = BASE_DIR / "datasets"
 DATA_YAML = BASE_DIR / "data.yaml"

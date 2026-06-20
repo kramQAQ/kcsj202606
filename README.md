@@ -1,106 +1,116 @@
-# 基于改进 YOLOv8 的中医药饮片智能检测与识别系统
+# 中医药饮片智能检测与识别系统
 
-本项目用于中医药饮片图像检测、处方图像 OCR 识别和结果展示。仓库中包含示例图片、YOLO 数据集、训练入口、OCR 处理逻辑和 Tkinter 展示界面。
+本项目基于改进 YOLOv8 实现中医药饮片图像的定位、分类识别与计数。当前正式部署模型采用 `exp2_bifpn`，即在 YOLOv8n 的 Neck 中引入 BiFPN 加权特征融合。
 
-## 环境要求
+## 当前模型
 
-推荐使用 Python 3.10。不要把 `.venv` 上传到 GitHub，其他人可以根据 `requirements.txt` 重新安装依赖。
-
-如果使用 Conda：
-
-```bash
-conda create -n kcsj python=3.10
-conda activate kcsj
-pip install -r requirements.txt
-```
-
-如果使用 Python 自带虚拟环境：
-
-```bash
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-## 运行主程序
-
-```bash
-python main.py
-```
-
-主程序会读取 `chufang2_cut.jpg`，调用 PaddleOCR 识别处方信息，并用 Tkinter 界面展示处理结果。
-
-## OCR 服务
-
-如果需要启动 HTTP OCR 服务：
-
-```bash
-python ocr_server.py
-```
-
-服务默认监听：
+推荐模型权重：
 
 ```text
-http://0.0.0.0:8866
+experiments/exp2_bifpn/trained_result/weights/best.pt
 ```
 
-接口包括：
+实验结果摘要：
 
-- `POST /ocr_img`：上传图片文件识别
-- `GET /ocr_filepath?file=图片路径`：按本地图片路径识别
+| 模型 | 改进内容 | Precision | Recall | mAP50 | mAP50-95 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| exp0_baseline | YOLOv8n | 0.9792 | 0.9427 | 0.9879 | 0.8084 |
+| exp2_bifpn | YOLOv8n + BiFPN | 0.9453 | 0.9584 | 0.9829 | 0.8174 |
 
-注意：`ocr_server.py` 中 PaddleOCR 当前设置为 `use_gpu=True`。如果电脑没有可用 GPU 或 CUDA/Paddle GPU 环境，请把它改为 `use_gpu=False`。
+## 环境安装
 
-## 训练 YOLO
-
-训练入口：
+推荐 Python 3.10。
 
 ```bash
-python train.py
+pip install -r requirements.txt
 ```
 
-训练配置读取：
+如果使用已有虚拟环境：
 
-- `data.yaml`
-- `datasets/images/train`
-- `datasets/images/val`
-- `datasets/labels/train`
-- `datasets/labels/val`
-- 初始权重 `yolov8n.pt`
-
-训练输出会写入 `runs/`，该目录已被 `.gitignore` 忽略，不会提交到仓库。
-
-## 相机采集说明
-
-`camera.py` 和 `ui_cam.py` 使用了 `gxipy`，这是大恒图像工业相机 SDK 的 Python 包，通常不能只靠 `pip install -r requirements.txt` 自动安装。
-
-如果需要使用相机功能，请先安装对应相机驱动和 Galaxy SDK，并确认 Python 环境中可以正常：
-
-```python
-import gxipy
+```powershell
+.\.venv\python.exe -m pip install -r requirements.txt
 ```
 
-不使用相机功能时，可以直接运行 `main.py`、`ocr_server.py` 或 `train.py`。
+## 启动网页识别服务
+
+```powershell
+.\.venv\python.exe .\main.py
+```
+
+默认端口为 `8868`。启动后终端会输出本机和局域网访问地址，例如：
+
+```text
+Local:   http://127.0.0.1:8868
+Phone:   http://172.20.10.3:8868
+```
+
+网页端功能：
+
+- 上传图片或调用手机相册/相机拍照
+- 调用后端 YOLO 模型推理
+- 显示检测框、类别、置信度
+- 统计每类饮片数量和总数
+
+说明：手机浏览器实时摄像头通常要求 HTTPS。局域网 HTTP 下若实时摄像头被浏览器拦截，可使用页面中的“相册/相机”入口拍照上传。
+
+## 启动本地桌面客户端
+
+```powershell
+.\.venv\python.exe .\desktop_client.py
+```
+
+桌面客户端功能：
+
+- 本地上传饮片图片
+- 使用 `exp2_bifpn` 模型离线推理
+- 绘制定位框、类别和置信度
+- 统计饮片总数与分类数量
+- 导出 CSV 盘点结果，便于药房盘点和仓储管理留档
+
+## 模型训练与验证
+
+基础训练入口：
+
+```powershell
+.\.venv\python.exe .\train.py
+```
+
+验证入口：
+
+```powershell
+.\.venv\python.exe .\val.py
+```
+
+单图预测入口：
+
+```powershell
+.\.venv\python.exe .\predict.py
+```
+
+实验管理与消融结果保存在 `experiments/`，其中 `exp2_bifpn` 为当前推荐部署模型。训练相关代码、模型结构、数据集配置和实验结果未被整理操作修改。
 
 ## 目录说明
 
 ```text
-main.py              主程序入口
-paddle_ocr.py        PaddleOCR 封装
-step_ocr_task.py     处方图像裁剪、识别和结构化处理
-show_data.py         Tkinter 展示界面
-train.py             YOLO 训练入口
-data.yaml            YOLO 数据集配置
-datasets/            YOLO 训练/验证数据
-pics/                原始图片和标注文件
-ultralytics/         项目内附带的 Ultralytics 代码
-yolov8n.pt           YOLOv8 初始权重
+main.py                         Web 识别服务入口
+desktop_client.py               本地上传图片识别客户端
+detect_core.py                  模型加载、推理、画框和计数核心逻辑
+templates/mobile_detect.html    手机/网页端识别页面
+constant.py                     数据集路径和类别配置
+data.yaml                       YOLO 数据集配置
+datasets/                       训练/验证数据
+2_1_dataset/                    原始饮片数据
+experiments/                    实验配置、训练结果和消融对比
+ultralytics/                    项目内 Ultralytics 源码与自定义模块
+yolov8n.pt                      YOLOv8n 预训练权重
 ```
 
-## 常见问题
+## 类别
 
-如果安装 PaddleOCR 或 PaddlePaddle 很慢，可以先配置 pip 镜像源。
+当前支持 15 类饮片：
 
-如果运行 OCR 时首次下载模型较慢，等待下载完成即可；模型缓存通常保存在用户目录下。
-
-如果安装 `torch` 失败，请根据自己的系统、CUDA 版本或 CPU 环境，到 PyTorch 官网选择合适的安装命令后再安装其余依赖。
+```text
+zexie, niuxi, gaoliangjiang, mudanpi, yuzhu,
+baizhi, baishao, dazao, danshen, gancao,
+baixianpi, baihe, sangzhi, jiegeng, banlangen
+```
