@@ -1,0 +1,1 @@
+source_run: /root/kcsj/runs/detect/exp10_bifpn_decoupled_gpu_20260621_100901

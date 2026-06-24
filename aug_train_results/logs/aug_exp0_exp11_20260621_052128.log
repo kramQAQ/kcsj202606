@@ -1,0 +1,18 @@
+================================================================================
+Training exp0_baseline: /root/miniconda3/bin/python /root/kcsj/experiments/run_exp.py /root/kcsj/experiments/exp0_baseline --epochs 100 --data /root/kcsj/data_aug.yaml
+Traceback (most recent call last):
+  File "/root/kcsj/experiments/run_exp.py", line 15, in <module>
+    from ultralytics import YOLO  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/kcsj/ultralytics/ultralytics/__init__.py", line 5, in <module>
+    from ultralytics.data.explorer.explorer import Explorer
+  File "/root/kcsj/ultralytics/ultralytics/data/__init__.py", line 3, in <module>
+    from .base import BaseDataset
+  File "/root/kcsj/ultralytics/ultralytics/data/base.py", line 15, in <module>
+    from torch.utils.data import Dataset
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/utils/__init__.py", line 8, in <module>
+    from torch.utils import (
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/utils/backcompat/__init__.py", line 2, in <module>
+    from torch._C import _set_backcompat_broadcast_warn
+ModuleNotFoundError: No module named 'torch._C'
+FAILED: exp0_baseline

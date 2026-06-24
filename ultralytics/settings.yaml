@@ -1,0 +1,17 @@
+settings_version: 0.0.4
+datasets_dir: E:\homework\2026\datasets
+weights_dir: E:\homework\2026\kcsj\weights
+runs_dir: E:\homework\2026\kcsj\runs
+uuid: e55636577299d36adf500084131984c02cc27f395a455c6dc07b5d84aa95e909
+sync: true
+api_key: ''
+openai_api_key: ''
+clearml: true
+comet: true
+dvc: true
+hub: true
+mlflow: true
+neptune: true
+raytune: true
+tensorboard: true
+wandb: true

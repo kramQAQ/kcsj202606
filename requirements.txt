@@ -1,30 +1,39 @@
-# Python 3.10 is recommended.
+# Training requirements for the cloud server.
+#
+# IMPORTANT:
+# - Do NOT install torch, torchvision, torchaudio, xformers, or any nvidia-* CUDA
+#   packages from this file.
+# - The server already provides the correct PyTorch + CUDA + GPU environment.
+# - This project uses the local ./ultralytics source tree, so do NOT pip install
+#   the public ultralytics package here.
+#
+# Recommended install command on the server:
+#   pip install -r requirements.txt --no-deps
+#
+# If a package reports a missing dependency later, install only that dependency
+# manually after confirming it will not replace torch/CUDA packages.
 
-# Computer vision and numeric processing
-opencv-python==4.6.0.66
-numpy==1.26.4
-Pillow==12.2.0
-matplotlib==3.10.9
+# Core numeric / data packages
+numpy>=1.26,<3
+pandas>=2.2,<3
+scipy>=1.11,<2
+PyYAML>=6.0,<7
 
-# YOLO training/inference
-torch==2.5.0
-torchvision==0.20.0
-ultralytics==8.4.61
+# Image processing and visualization
+opencv-python>=4.8,<5
+Pillow>=10,<13
+matplotlib>=3.8,<4
 
-# Data processing
-PyYAML==6.0.3
-scikit-learn==1.7.2
-pandas==2.3.3
-scipy==1.15.3
+# YOLO/Ultralytics runtime utilities, excluding torch/CUDA
+tqdm>=4.66,<5
+requests>=2.31,<3
+psutil>=5.9,<8
+py-cpuinfo>=9,<10
+thop>=0.1.1
+seaborn>=0.13,<1
 
-# Web inference server
-Flask==2.0.3
-Jinja2==3.0.3
-MarkupSafe==2.0.1
-Werkzeug==2.1.2
-requests==2.31.0
+# Optional: training logs
+tensorboard>=2.15,<3
 
-# Utilities used by Ultralytics
-tqdm==4.68.1
-shapely==2.1.2
-psutil==7.2.2
+# Optional: dataset augmentation scripts
+albumentations>=1.4,<3

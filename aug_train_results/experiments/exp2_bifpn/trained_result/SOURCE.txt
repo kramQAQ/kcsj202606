@@ -1,0 +1,1 @@
+source_run: /root/kcsj/runs/detect/exp2_bifpn_gpu_20260621_062709

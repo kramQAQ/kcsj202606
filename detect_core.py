@@ -22,9 +22,17 @@ if LOCAL_ULTRALYTICS_DIR.exists() and str(LOCAL_ULTRALYTICS_DIR) not in sys.path
 from ultralytics import YOLO
 
 
-MODEL_PATH = BASE_DIR / "experiments" / "exp2_bifpn" / "trained_result" / "weights" / "best.pt"
+MODEL_PATH = (
+    BASE_DIR
+    / "res1500"
+    / "detect"
+    / "exp6_cbam_bifpn_decoupled_gpu_20260621_180615"
+    / "weights"
+    / "best.pt"
+)
 DEFAULT_CONF = 0.25
 DEFAULT_IMGSZ = 640
+DEFAULT_OVERLAP_IOU = 0.55
 INFERENCE_DEVICE = 0 if torch.cuda.is_available() else "cpu"
 USE_HALF = torch.cuda.is_available()
 
@@ -56,6 +64,33 @@ def clamp_conf(conf: float | str | None) -> float:
     return min(max(value, 0.01), 0.95)
 
 
+def box_iou(box_a: list[float], box_b: list[float]) -> float:
+    ax1, ay1, ax2, ay2 = box_a
+    bx1, by1, bx2, by2 = box_b
+    inter_x1 = max(ax1, bx1)
+    inter_y1 = max(ay1, by1)
+    inter_x2 = min(ax2, bx2)
+    inter_y2 = min(ay2, by2)
+    inter_w = max(0.0, inter_x2 - inter_x1)
+    inter_h = max(0.0, inter_y2 - inter_y1)
+    inter_area = inter_w * inter_h
+    area_a = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
+    area_b = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
+    union = area_a + area_b - inter_area
+    return inter_area / union if union > 0 else 0.0
+
+
+def suppress_overlapping_detections(
+    detections: list[dict[str, Any]],
+    iou_threshold: float = DEFAULT_OVERLAP_IOU,
+) -> list[dict[str, Any]]:
+    kept: list[dict[str, Any]] = []
+    for item in sorted(detections, key=lambda det: det["confidence"], reverse=True):
+        if all(box_iou(item["box"], kept_item["box"]) < iou_threshold for kept_item in kept):
+            kept.append(item)
+    return kept
+
+
 def predict_image(model: YOLO, image: Image.Image, conf: float | str | None = None) -> dict[str, Any]:
     rgb_image = image.convert("RGB")
     threshold = clamp_conf(conf)
@@ -71,7 +106,6 @@ def predict_image(model: YOLO, image: Image.Image, conf: float | str | None = No
     elapsed_ms = round((time.perf_counter() - started) * 1000, 1)
 
     detections = []
-    counts: dict[str, int] = {}
     result = results[0]
     for box in result.boxes:
         cls_id = int(box.cls[0])
@@ -86,6 +120,11 @@ def predict_image(model: YOLO, image: Image.Image, conf: float | str | None = No
                 "box": [x1, y1, x2, y2],
             }
         )
+
+    detections = suppress_overlapping_detections(detections)
+    counts: dict[str, int] = {}
+    for item in detections:
+        name = item["name"]
         counts[name] = counts.get(name, 0) + 1
 
     return {

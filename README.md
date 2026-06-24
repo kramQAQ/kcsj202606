@@ -31,6 +31,54 @@ pip install -r requirements.txt
 .\.venv\python.exe -m pip install -r requirements.txt
 ```
 
+## 本地客户端部署流程
+
+本地部署采用“两进程”结构，为以后扩展网页端做准备：
+
+```text
+Windows Tkinter 客户端
+        |
+        | http://127.0.0.1:8868
+        v
+本地 Flask 推理后端
+        |
+        v
+exp6 best.pt
+```
+
+当前固定部署模型：
+
+```text
+experiments/exp6_cbam_bifpn_decoupled/trained_result/weights/best.pt
+```
+
+一键启动：
+
+```powershell
+.\start_local_client.bat
+```
+
+手动启动：
+
+```powershell
+.\.venv\python.exe .\main.py --host 127.0.0.1 --port 8868
+```
+
+另开一个终端：
+
+```powershell
+.\.venv\python.exe .\desktop_client.py
+```
+
+客户端功能：
+
+- 选择本地饮片图片
+- 调用 `127.0.0.1:8868` 后端推理
+- 显示检测框、类别、置信度
+- 显示总数、分类计数、推理耗时、CPU/GPU 设备
+- 导出 CSV 盘点结果
+- 保存带框图片
+
 ## 启动网页识别服务
 
 ```powershell

@@ -7,14 +7,14 @@ import socket
 import threading
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_file
 from PIL import Image
 
 import constant
-from detect_core import DEFAULT_CONF, MODEL_PATH, load_model, predict_image
+from detect_core import DEFAULT_CONF, INFERENCE_DEVICE, MODEL_PATH, draw_detections, load_model, predict_image
 
 
-MAX_UPLOAD_BYTES = 8 * 1024 * 1024
+MAX_UPLOAD_BYTES = 32 * 1024 * 1024
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
@@ -47,6 +47,7 @@ def health():
     return jsonify(
         status="ok",
         model=str(MODEL_PATH),
+        device=str(INFERENCE_DEVICE),
         classes=constant.CLASS_NAMES,
     )
 
@@ -78,14 +79,36 @@ def detect():
         counts=result["counts"],
         total=result["total"],
         elapsed_ms=result["elapsed_ms"],
+        device=str(INFERENCE_DEVICE),
     )
+
+
+@app.post("/api/detect/visual")
+def detect_visual():
+    if "file" not in request.files:
+        return jsonify(status="error", message="No image file uploaded."), 400
+
+    uploaded = request.files["file"]
+    try:
+        image = Image.open(io.BytesIO(uploaded.read())).convert("RGB")
+    except Exception:
+        return jsonify(status="error", message="Failed to parse image. Please take another photo."), 400
+
+    with model_lock:
+        result = predict_image(model, image, request.form.get("conf"))
+
+    visual = draw_detections(image, result["detections"])
+    buffer = io.BytesIO()
+    visual.save(buffer, format="JPEG", quality=92)
+    buffer.seek(0)
+    return send_file(buffer, mimetype="image/jpeg")
 
 
 def main():
     global model
 
-    parser = argparse.ArgumentParser(description="Mobile herb detection demo server.")
-    parser.add_argument("--host", default="0.0.0.0")
+    parser = argparse.ArgumentParser(description="Local herb detection inference server.")
+    parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", default=8868, type=int)
     args = parser.parse_args()
 

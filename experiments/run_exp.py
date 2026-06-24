@@ -21,7 +21,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("exp_dir", help="Experiment directory, e.g. experiments/exp1_neck_cbam")
     parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--data", default=str(constant.DATA_YAML), help="Dataset YAML path, e.g. data.yaml or data_aug.yaml")
+    parser.add_argument("--batch", type=int, default=4)
+    parser.add_argument("--workers", type=int, default=0)
     parser.add_argument("--no-pretrained", action="store_true")
+    parser.add_argument("--pretrained-weights", default=str(constant.MODEL_PATH))
     args = parser.parse_args()
 
     exp_dir = Path(args.exp_dir).resolve()
@@ -36,15 +40,21 @@ def main():
 
     model = YOLO(str(model_yaml), task="detect")
     if not args.no_pretrained:
-        model = model.load(str(constant.MODEL_PATH))
+        pretrained_weights = Path(args.pretrained_weights)
+        if not pretrained_weights.is_absolute():
+            pretrained_weights = ROOT / pretrained_weights
+        if pretrained_weights.exists():
+            model = model.load(str(pretrained_weights))
+        else:
+            print(f"WARNING: pretrained weights not found: {pretrained_weights}. Training from scratch.", flush=True)
 
     model.train(
-        data=str(constant.DATA_YAML),
+        data=str(Path(args.data).resolve()),
         epochs=args.epochs,
         imgsz=640,
-        batch=4,
+        batch=args.batch,
         device=device,
-        workers=0,
+        workers=args.workers,
         plots=False,
         project=str(constant.RUNS_DETECT_DIR),
         name=run_name,

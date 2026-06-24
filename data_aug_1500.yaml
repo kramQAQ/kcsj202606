@@ -1,0 +1,20 @@
+path: /root/kcsj/datasets_aug_1500_v2
+train: images/train
+val: images/val
+nc: 15
+names:
+- zexie
+- niuxi
+- gaoliangjiang
+- mudanpi
+- yuzhu
+- baizhi
+- baishao
+- dazao
+- danshen
+- gancao
+- baixianpi
+- baihe
+- sangzhi
+- jiegeng
+- banlangen
